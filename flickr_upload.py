@@ -8,7 +8,7 @@ import functools
 import hashlib
 from time import sleep
 
-LowerExtensions = ['.jpg', '.png', '.mov', '.jpeg', '.mp4']
+LowerExtensions = ['.jpg', '.png', '.mov', '.jpeg', '.mp4', '.m4v']
 Extensions = LowerExtensions + [ext.upper() for ext in LowerExtensions]
 
 RetryLimit = 50
