@@ -19,20 +19,20 @@ def file_hash(file_path):
     with open(file_path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
 
-def upload_file(name, file):
+def upload_file(name, file, tags = ''):
     retry_count = 0
     while retry_count < RetryLimit:
         print 'uploading %s (%s)' % (name, retry_count)
         retry_count += 1
         try:
-            result = flickr.upload(filename=file, is_public=0, is_family=1, is_friend=1, format='xmlnode')
+            result = flickr.upload(filename=file, is_public=0, is_family=1, is_friend=1, tags=tags, format='xmlnode')
         except Exception as e:
             print e
             continue
         return result['stat'] == 'ok'
     return False
 
-def upload_dir(directory, backup):
+def upload_dir(directory, backup, tags):
     root, dirs, files = os.walk(directory).next()
     for name in sorted(files):
         if os.path.splitext(name)[1] in Extensions:
@@ -43,7 +43,7 @@ def upload_dir(directory, backup):
                 os.rename(whole_file, os.path.join(backup, name))
             else:
                 hashes[md5] = name
-                if upload_file(name, whole_file):
+                if upload_file(name, whole_file, tags):
                     print 'moving %s' % name
                     os.rename(whole_file, os.path.join(backup, name))
 
@@ -62,6 +62,9 @@ flickr.authenticate_via_browser(perms='write')
 
 directory = sys.argv[3]
 backup = sys.argv[4]
+tags = ''
+if len(sys.argv) > 5:
+    tags = sys.argv[5]
 
 if directory == '' or backup == '':
     print 'include upload and backup directories'
@@ -70,4 +73,4 @@ if directory == '' or backup == '':
 if not os.path.exists(backup):
     os.makedirs(backup)
 scan_backup(backup)
-upload_dir(directory, backup)
+upload_dir(directory, backup, tags)
